@@ -1,12 +1,12 @@
-import { Response, Request } from 'express';
+import { Response, Request } from "express";
 
 import convertHourToMinutes from "../utils/convertHourToMinutes";
 import db from "../database/connection";
 
 interface ScheduleItem {
-  week_day: number,
-  from: string,
-  to: string,
+  week_day: number;
+  from: string;
+  to: string;
 }
 
 export default class ClassesController {
@@ -19,51 +19,43 @@ export default class ClassesController {
 
     if (!filters.week_day || !filters.subject || !filters.time) {
       return res.status(400).json({
-        error: 'Missing filters to search classes',
+        error: "Missing filters to search classes",
       });
     }
 
     const timeInMinutes = convertHourToMinutes(time);
 
-    const classes = await db('classes')
+    const classes = await db("classes")
       .whereExists(function () {
-        this.select('class_schedule.*')
-          .from('class_schedule')
-          .whereRaw('`class_schedule`.`class_id`')
-          .whereRaw('`class_schedule`.`week_day` = ??', [Number(week_day)])
-          .whereRaw('`class_schedule`.`from` <= ??', [timeInMinutes])
-          .whereRaw('`class_schedule`.`to` > ??', [timeInMinutes]);
+        this.select("class_schedule.*")
+          .from("class_schedule")
+          .whereRaw("`class_schedule`.`class_id`")
+          .whereRaw("`class_schedule`.`week_day` = ??", [Number(week_day)])
+          .whereRaw("`class_schedule`.`from` <= ??", [timeInMinutes])
+          .whereRaw("`class_schedule`.`to` > ??", [timeInMinutes]);
       })
-      .where('classes.subject', '=', subject)
-      .join('users', 'classes.user_id', '=', 'users.id')
-      .select(['classes.*', 'users.*']);
+      .where("classes.subject", "=", subject)
+      .join("users", "classes.user_id", "=", "users.id")
+      .select(["classes.*", "users.*"]);
 
     return res.json(classes);
   }
 
   async create(req: Request, res: Response) {
-    const {
-      name,
-      avatar,
-      whatsapp,
-      bio,
-      subject,
-      cost,
-      schedule,
-    } = req.body;
+    const { name, avatar, whatsApp, bio, subject, cost, schedule } = req.body;
 
     const trx = await db.transaction();
 
     try {
-      const insertedUsersIds = await trx('users').insert({
+      const insertedUsersIds = await trx("users").insert({
         name,
         avatar,
-        whatsapp,
+        whatsApp,
         bio,
       });
       const user_id = insertedUsersIds[0];
 
-      const insertedClassesId = await trx('classes').insert({
+      const insertedClassesId = await trx("classes").insert({
         subject,
         cost,
         user_id,
@@ -77,7 +69,7 @@ export default class ClassesController {
         to: convertHourToMinutes(scheduleItem.to),
       }));
 
-      await trx('class_schedule').insert(classSchedule);
+      await trx("class_schedule").insert(classSchedule);
 
       await trx.commit();
 
@@ -85,7 +77,9 @@ export default class ClassesController {
     } catch (err) {
       await trx.rollback();
 
-      return res.status(400).json({ error: 'Unexpected error while creating new class.' });
+      return res
+        .status(400)
+        .json({ error: "Unexpected error while creating new class." });
     }
   }
 }
