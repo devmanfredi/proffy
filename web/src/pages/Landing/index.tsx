@@ -1,47 +1,56 @@
-import React from "react";
-import {Link} from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
-import logoImg from "../../assets/images/logo.svg";
-import landingImg from "../../assets/images/landing.svg";
+import logo from "../../assets/images/logo/logo.svg";
+import landing from "../../assets/images/logo/landing.svg";
+
 import studyIcon from "../../assets/images/icons/study.svg";
 import giveClassesIcon from "../../assets/images/icons/give-classes.svg";
 import purpleHeartIcon from "../../assets/images/icons/purple-heart.svg";
 
-import './styles.css'
+import api from "../../services/api";
 
-function Landing() {
+import "./styles.css";
+
+const Landing: React.FC = () => {
+  const [totalConnections, setTotalConnections] = useState(0);
+
+  useEffect(() => {
+    api.get("/connections").then((response) => {
+      const { total } = response.data;
+      setTotalConnections(total);
+    });
+  }, []);
+
   return (
     <div id="page-landing">
       <div id="page-landing-content" className="container">
         <div className="logo-container">
-          <img src={logoImg} alt="Proffy" />
-          <h2>Sua plataforma de estudos online</h2>
+          <img src={logo} alt="Font Proffy Logo" />
+          <h2>Sua plataforma de estudos online.</h2>
         </div>
 
-        <img
-          src={landingImg}
-          alt="Plataforma de estudos"
-          className="hero-image"
-        />
+        <img src={landing} alt="Landing" className="hero-image" />
 
         <div className="buttons-container">
           <Link to="/study" className="study">
-            <img src={studyIcon} alt="Estudar" />
+            <img src={studyIcon} alt="Study Icon" />
             Estudar
           </Link>
 
-          <Link /*href=""*/ to="/give-classes" className="give-classes">
-            <img src={giveClassesIcon} alt="Estudar" />
+          <Link to="/give-classes" className="give-classes">
+            <img src={giveClassesIcon} alt="Give Classes Icon" />
             Dar Aulas
           </Link>
         </div>
 
         <span className="total-connections">
-          Total de 200 conexões já realizadas <img src={purpleHeartIcon} alt="coração Roxo"/>
+          Total de {totalConnections} conexões já realizadas{" "}
+          <img src={purpleHeartIcon} alt="Purple Heart Icon" />
         </span>
       </div>
     </div>
   );
-}
+};
 
 export default Landing;
