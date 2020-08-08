@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import Knex from "knex";
 
 export async function up(knex: Knex) {
@@ -11,7 +10,7 @@ export async function up(knex: Knex) {
       .integer("user_id")
       .notNullable()
       .references("id")
-      .inTable("users")
+      .inTable("USERS")
       .onUpdate("CASCADE")
       .onDelete("CASCADE");
   });
