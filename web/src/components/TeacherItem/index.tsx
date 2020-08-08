@@ -1,38 +1,60 @@
 import React from "react";
 
 import whatsappIcon from "../../assets/images/icons/whatsapp.svg";
+
+import api from "../../services/api";
+
 import "./styles.css";
 
-function TeacherItem() {
+export interface Teacher {
+  id: number;
+  avatar: string;
+  bio: string;
+  cost: number;
+  name: string;
+  subject: string;
+  whatsapp: string;
+}
+
+interface TeacherItemProps {
+  teacher: Teacher;
+}
+
+const TeacherItem: React.FC<TeacherItemProps> = ({ teacher }) => {
+  function createNewConnection() {
+    api.post("/connections", {
+      user_id: teacher.id,
+    });
+  }
+
   return (
     <article className="teacher-item">
       <header>
-        <img
-          src="https://avatars1.githubusercontent.com/u/45863981?s=460&u=220f59d6cb8b5cb17bb8934656ebe2e9d5183d3b&v=4"
-          alt="Heuler Manfredi"
-        />
+        <img src={teacher.avatar} alt={teacher.name} />
         <div>
-          <strong>Heuler Manfredi</strong>
-          <span>Engenharia de Software</span>
+          <strong>{teacher.name}</strong>
+          <span>{teacher.subject}</span>
         </div>
       </header>
-      <p>
-        Apaixonado por tecnologia e quer aplicá-la em benefício das pessoas, em especial livrá-las da 
-        burocracia, aplicando seu tempo no que mais importa.
-        <br /> <br />
-      </p>
+
+      <p>{teacher.bio}</p>
+
       <footer>
         <p>
           Preço/hora
-          <strong>R$ 100,00</strong>
+          <strong>R$ {teacher.cost}</strong>
         </p>
-        <button type="button">
-          <img src={whatsappIcon} alt="Whatsapp" />
+        <a
+          target="_blank"
+          onClick={createNewConnection}
+          href={`https://wa.we/${teacher.whatsapp}`}
+        >
+          <img src={whatsappIcon} alt="WhatsApp Icon" />
           Entrar em contato
-        </button>
+        </a>
       </footer>
     </article>
   );
-}
+};
 
 export default TeacherItem;
